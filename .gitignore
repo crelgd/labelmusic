@@ -1,0 +1,16 @@
+*.exe
+*.zip
+*bin*
+*build*
+include/GL
+include/SDL
+include/stb_image.h
+план
+.vscode
+
+*.kra~
+*.bak
+*.log
+*.tmp
+*.swp
+*.png~
