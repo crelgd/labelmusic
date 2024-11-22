@@ -20,10 +20,10 @@ void glDisable2D();
 char** split(char* text, int* element_count);
 void free_split(char** array, int element_count);
 
+void load_map(char* argv[]);
+
 int main(int argc, char* argv[]) {
     if (argc < 2) return 0;
-
-    const char* map_path = argv[1];
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         printf("SDL INIT\n");
@@ -63,7 +63,22 @@ int main(int argc, char* argv[]) {
     Discord_UpdatePresence(&idk);
 
     // text file init
-    apiMapModel* api = fapiOpen(map_path);
+    const char* map_path = argv[1];
+    char map_bfr[1024] = {0};
+
+    int map_path_size = strlen(map_path);
+
+    memcpy(map_bfr, map_path, map_path_size * sizeof(char));
+    const char* map_bfr_file = "/map.lmm";
+
+    for (int i = 0; i < strlen(map_bfr_file); i++) {
+        map_bfr[map_path_size] = map_bfr_file[i];
+        map_path_size++;
+    }
+
+    //printf("%s\n", map_bfr);
+
+    apiMapModel* api = fapiOpen(map_bfr);
     if (!api) {
         printf("map api\n");
         SDL_GL_DeleteContext(glcontext);
