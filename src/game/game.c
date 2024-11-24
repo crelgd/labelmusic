@@ -159,25 +159,28 @@ int game_game_cliked(char current_symbol, char** word_array) {
     return status;
 }
 
-void game_game_draw_text(char** word_array, int word_array_count, char* combo, int combo_status) {
+int game_game_draw_text(char** word_array, int word_array_count, char* combo, int combo_status) {
     if (new_text) {
         if (game_text) {
             uapiDeleteText(game_text);
             game_text = NULL;
         }
 
-        SDL_Color color = {255, 255, 255, 255};
-        game_text = uapiCreateText(word_array[text_counter], "data/consola.ttf", 40, color);
-        if (!game_text) {
-            return;
+        if (text_counter < word_array_count) {
+            SDL_Color color = {255, 255, 255, 255};
+            game_text = uapiCreateText(word_array[text_counter], "data/consola.ttf", 40, color);
+            if (!game_text) {
+                return;
+            }
+
+            text_x = (gww/2) - (game_text->w/2);
+            text_y = (gwh/2) - (game_text->h/2);
+
+            game_game_text_marker(word_array, tpos); // крч дальше добавить музыку,         1
+        } else {                                     // а потом добавить клики под музыку   2
+            printf("END!");                          // (изменение формата карты)
+            return GAME_END;
         }
-
-        text_x = (gww/2) - (game_text->w/2);
-        text_y = (gwh/2) - (game_text->h/2);
-
-        if (text_counter >= word_array_count) {
-            printf("END!");
-        } else game_game_text_marker(word_array, tpos);
 
         new_text = 0;
     }

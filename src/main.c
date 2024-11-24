@@ -20,8 +20,6 @@ void glDisable2D();
 char** split(char* text, int* element_count);
 void free_split(char** array, int element_count);
 
-void load_map(char* argv[]);
-
 int main(int argc, char* argv[]) {
     if (argc < 2) return 0;
 
@@ -135,9 +133,9 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    //for (int i = 0; i < map_word_count; i++) {
-    //    printf("%s\n", map_split_data[i]);
-    //}
+    for (int i = 0; i < map_word_count; i++) {
+        printf("%s\n", map_split_data[i]);
+    }
 
     fapiFree(map_text);
 
@@ -186,7 +184,10 @@ int main(int argc, char* argv[]) {
         game_game_draw_other();
 
         glEnable2D();
-        game_game_draw_text(map_split_data, map_word_count, SDL_itoa(combo, buffer, 10), change_combo);
+        int res = game_game_draw_text(map_split_data, map_word_count, SDL_itoa(combo, buffer, 10), change_combo);
+        if (res == GAME_END) {
+            run = 0;
+        }
         glDisable2D();
 
         change_combo = 0;
@@ -236,7 +237,7 @@ char** split(char* text, int* element_count) {
     int text_size = strlen(text);
     int space_count = 0;
 
-    if (text[0] == ' ') text[0] = 0x00;
+    //if (text[0] == ' ') text[0] = 0x00;
     for (int i = 0; i < text_size; i++)
         if (text[i] == ' ') space_count++;
 

@@ -11,7 +11,10 @@ float screenToGLY(int screenY, int screenHeight);
 void game_game_init(char* bg_path, int ww, int wh);
 
 void game_game_draw_other();
-void game_game_draw_text(char** word_array, int word_array_count, char* combo, int combo_status);
+
+#define GAME_END 5
+
+int game_game_draw_text(char** word_array, int word_array_count, char* combo, int combo_status);
 
 void game_game_close();
 
