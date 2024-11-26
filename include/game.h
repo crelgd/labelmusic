@@ -3,12 +3,12 @@
 
 #include "apiGraphic.h"
 
-typedef unsigned char* byte;
+typedef unsigned char* byte_api;
 
 float screenToGLX(int screenX, int screenWidth);
 float screenToGLY(int screenY, int screenHeight);
 
-void game_game_init(char* bg_path, int ww, int wh);
+void game_game_init(char* bg_path, int ww, int wh, char* map_song, int map_song_size_arr);
 
 void game_game_draw_other();
 

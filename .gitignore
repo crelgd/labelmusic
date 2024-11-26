@@ -5,6 +5,7 @@
 include/GL
 include/SDL
 include/stb_image.h
+include/miniaudio.h
 план
 .vscode
 

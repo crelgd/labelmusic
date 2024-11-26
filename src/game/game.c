@@ -7,6 +7,9 @@
 #include <string.h>
 #include <ctype.h>
 
+#define MINIAUDIO_IMPLEMENTATION
+#include "miniaudio.h"
+
 #define MAIN_FONT "data/consola.ttf"
 
 float screenToGLX(int val, int screenWidth) {
@@ -41,7 +44,12 @@ int gww, gwh;
 uapiObject game_text_marker_obj;
 uapiText* game_combo_counter;
 
-void game_game_init(char* bg_path, int ww, int wh) {
+ma_result result;
+ma_engine engine;
+
+char map_song_global[256] = {0};
+
+void game_game_init(char* bg_path, int ww, int wh, char* map_song, int map_song_size_arr) {
     float game_bg_data[] = {
         -1, -1, 0,
         1, -1, 0,
@@ -90,6 +98,14 @@ void game_game_init(char* bg_path, int ww, int wh) {
     gwh = wh;
 
     game_combo_counter = uapiCreateText("NULL", MAIN_FONT, 40, color);
+
+    result = ma_engine_init(NULL, &engine);
+
+    for (int i = 0; i < map_song_size_arr; i++) {
+        map_song_global[i] = map_song[i];
+    }
+    printf("%d| %s\n",map_song_size_arr , map_song_global);
+    ma_engine_play_sound(&engine, map_song_global, NULL);
 }
 
 void game_game_draw_other() {
@@ -179,7 +195,7 @@ int game_game_draw_text(char** word_array, int word_array_count, char* combo, in
             game_game_text_marker(word_array, tpos); // крч дальше добавить музыку,         1
         } else {                                     // а потом добавить клики под музыку   2
             printf("END!");                          // (изменение формата карты)
-            return GAME_END;
+            return GAME_END;                         // * я подготовил библиоотеку OpenAL и dr_mp3
         }
 
         new_text = 0;
@@ -206,6 +222,8 @@ int game_game_draw_text(char** word_array, int word_array_count, char* combo, in
 }
 
 void game_game_close() {
+    ma_engine_uninit(&engine);
+
     if (game_combo_counter) uapiDeleteText(game_combo_counter);
     if (game_text) uapiDeleteText(game_text);
     uapiDeleteObject(&game_text_marker_obj);

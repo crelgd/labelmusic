@@ -98,7 +98,6 @@ int main(int argc, char* argv[]) {
     if (!map_song) {
         printf("map song\n");
     }
-    fapiFree(map_song);
     char* map_bg = fapiGetMapBGFile(api);
     if (!map_bg) {
         printf("map bg\n");
@@ -144,7 +143,11 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    game_game_init(map_bg, WW, WH);
+    game_game_init(map_bg, WW, WH, map_song, strlen(map_song));
+
+    printf("%s\n", map_song);
+
+    fapiFree(map_song);
 
     fapiFree(map_bg);
     fapiClose(api);
