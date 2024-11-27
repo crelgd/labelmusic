@@ -2,6 +2,7 @@
 #define API_MAP_H
 
 #include <stdio.h>
+#include <stddef.h>
 
 typedef struct APIMAPMODEL {
     FILE* file;
@@ -22,11 +23,14 @@ char* fapiGetMapSong(apiMapModel* api);
 char* fapiGetMapBGFile(apiMapModel* api);
 char* fapiGetMapText(apiMapModel* api, const char* key);
 
+unsigned int* fapiGetMapTimingData(apiMapModel* api);
+unsigned int* fapiConvertTimingData(unsigned int* data, size_t data_sizeof, size_t array_type_sizeof);
+
 void fapiResetCursor(apiMapModel* api);
 
 // creating file
 // 1 - error
-int fapiCreateFile(const char* path, const char* audio_file, const char* bg_file, const char* text_content, const char* key);
+int fapiCreateFile(const char* path, const char* audio_file, const char* bg_file, const char* text_content, const char* key, unsigned int* time_data, int timedata_element_count);
 
 // encrypt
 unsigned char* fapiEncrypt(unsigned char* in_data, int in_data_size, const char* key);

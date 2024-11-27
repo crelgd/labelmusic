@@ -296,7 +296,6 @@ char* fapiGetMapText(apiMapModel* api, const char* key) {
     fseek(api->file, api->cursor, SEEK_SET);
 
     if (fread(ccache, sizeof(unsigned char), 4, api->file) != 4) return NULL;
-    api->cursor += 4;
 
     int text_size = get_value_from_four_bytes(ccache);
 
@@ -319,7 +318,66 @@ char* fapiGetMapText(apiMapModel* api, const char* key) {
 
     fseek(api->file, 0, SEEK_SET);
 
+    api->cursor += 4+text_size;
+
     return txt_output;
+}
+
+unsigned int* fapiGetMapTimingData(apiMapModel* api) {
+    if (!api) return NULL;
+    unsigned char size[4] = {0};
+
+    fseek(api->file, api->cursor, SEEK_SET);
+
+    if (fread(size, sizeof(unsigned char), 4, api->file) != 4) return NULL;
+    
+    int data_size = get_value_from_four_bytes(size);
+
+    unsigned int* data_array = (unsigned int*)malloc(data_size * sizeof(unsigned int));
+    if (!data_array) return NULL;
+
+    if (fread(data_array, sizeof(unsigned int), data_size, api->file) != data_size) {
+        free(data_array);
+        return NULL;
+    }
+
+    fseek(api->file, 0, SEEK_SET);
+
+    api->cursor += 4+data_size;
+
+    return data_array;
+}
+
+unsigned int* fapiConvertTimingData(unsigned int* data, size_t data_sizeof, size_t array_type_sizeof) {
+    if (!data) return NULL;
+
+    int array_elements = data_sizeof/array_type_sizeof;
+
+    int array_size = array_elements/4;
+
+    unsigned int* array = (unsigned int*)malloc(array_size * sizeof(unsigned int));
+    if (!array) return NULL;
+
+    int counter = 0;
+    int array_pos = 0;
+    unsigned char cache[4];
+
+    for (int i = 0; i < array_elements; i++) {
+        if (counter >= 4) {
+            if (array_pos >= array_size) break;
+
+            int element_result = get_value_from_four_bytes(cache);
+            array[array_pos] = element_result;
+
+            array_pos++;
+            counter = 0;
+        }
+
+        cache[counter] = data[i];
+        counter++;
+    }
+
+    return array;
 }
 
 // 0 - hight 1 - low
@@ -346,11 +404,13 @@ unsigned char* four_bytes_get_low_high(int value) {
 	return arr;
 }
 
-int fapiCreateFile(const char* path, const char* audio_file, const char* bg_file, const char* text_content, const char* key) {
+int fapiCreateFile(const char* path, const char* audio_file, const char* bg_file, const char* text_content, const char* key, unsigned int* time_data, int timedata_element_count) {
     int audio_size = strlen(audio_file)+1;
     int textc_size = strlen(text_content)+1;
     int bg_size = strlen(bg_file)+1;
     int file_size = SIGN_SIZE+4+4+audio_size+textc_size+bg_size;
+
+    int output_time_data = timedata_element_count * 4;
 
     char* encrypted_text = fapiEncrypt(text_content, textc_size, key);
     if (!encrypted_text) return 1;
@@ -358,6 +418,8 @@ int fapiCreateFile(const char* path, const char* audio_file, const char* bg_file
     unsigned char* audio_hex = two_bytes_get_low_high(audio_size);
     unsigned char* textc_hex = four_bytes_get_low_high(textc_size);
     unsigned char* bg_hex = two_bytes_get_low_high(bg_size);
+
+    unsigned char* timedata_hex = four_bytes_get_low_high(output_time_data);
 
     unsigned char* file_mem = (unsigned char*)malloc(file_size * sizeof(unsigned char));
     if (!file_mem) {
@@ -409,6 +471,21 @@ int fapiCreateFile(const char* path, const char* audio_file, const char* bg_file
     }
     free(textc_hex);
     free(encrypted_text);
+
+    for (int i = 0; i < (4+timedata_element_count); i++) {
+        if (i < 4) {
+            file_mem[file_cur_pos] = timedata_hex[i];
+            file_cur_pos++;
+        } else {
+            unsigned char* timely_timedata = four_bytes_get_low_high(time_data[i-4]);
+            for (int j = 0; j < 4; j++) {
+                file_mem[file_cur_pos] = timely_timedata[j];
+                file_cur_pos++;
+            }
+            free(timely_timedata);
+        }
+    }
+    free(timedata_hex);
 
     FILE* file = fopen(path, "wb");
 

@@ -4,6 +4,7 @@
 *build*
 include/GL
 include/SDL
+include/discord
 include/stb_image.h
 include/miniaudio.h
 план
