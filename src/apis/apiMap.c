@@ -323,7 +323,7 @@ char* fapiGetMapText(apiMapModel* api, const char* key) {
     return txt_output;
 }
 
-unsigned int* fapiGetMapTimingData(apiMapModel* api) {
+unsigned char* fapiGetMapTimingData(apiMapModel* api, int* array_elements) {
     if (!api) return NULL;
     unsigned char size[4] = {0};
 
@@ -332,11 +332,12 @@ unsigned int* fapiGetMapTimingData(apiMapModel* api) {
     if (fread(size, sizeof(unsigned char), 4, api->file) != 4) return NULL;
     
     int data_size = get_value_from_four_bytes(size);
+    *array_elements = data_size;
 
-    unsigned int* data_array = (unsigned int*)malloc(data_size * sizeof(unsigned int));
+    unsigned char* data_array = (unsigned char*)malloc(data_size * sizeof(unsigned char));
     if (!data_array) return NULL;
 
-    if (fread(data_array, sizeof(unsigned int), data_size, api->file) != data_size) {
+    if (fread(data_array, sizeof(unsigned char), data_size, api->file) != data_size) {
         free(data_array);
         return NULL;
     }
@@ -348,10 +349,8 @@ unsigned int* fapiGetMapTimingData(apiMapModel* api) {
     return data_array;
 }
 
-unsigned int* fapiConvertTimingData(unsigned int* data, size_t data_sizeof, size_t array_type_sizeof) {
+unsigned int* fapiConvertTimingData(unsigned char* data, int array_elements) {
     if (!data) return NULL;
-
-    int array_elements = data_sizeof/array_type_sizeof;
 
     int array_size = array_elements/4;
 
@@ -360,7 +359,7 @@ unsigned int* fapiConvertTimingData(unsigned int* data, size_t data_sizeof, size
 
     int counter = 0;
     int array_pos = 0;
-    unsigned char cache[4];
+    unsigned char cache[4] = {0};
 
     for (int i = 0; i < array_elements; i++) {
         if (counter >= 4) {
@@ -375,6 +374,11 @@ unsigned int* fapiConvertTimingData(unsigned int* data, size_t data_sizeof, size
 
         cache[counter] = data[i];
         counter++;
+    }
+
+    if (counter == 4 && array_pos < array_size) {
+        int element_result = get_value_from_four_bytes(cache);
+        array[array_pos] = element_result;
     }
 
     return array;
@@ -408,9 +412,8 @@ int fapiCreateFile(const char* path, const char* audio_file, const char* bg_file
     int audio_size = strlen(audio_file)+1;
     int textc_size = strlen(text_content)+1;
     int bg_size = strlen(bg_file)+1;
-    int file_size = SIGN_SIZE+4+4+audio_size+textc_size+bg_size;
-
     int output_time_data = timedata_element_count * 4;
+    int file_size = SIGN_SIZE+4+4+audio_size+textc_size+bg_size+output_time_data+4;
 
     char* encrypted_text = fapiEncrypt(text_content, textc_size, key);
     if (!encrypted_text) return 1;

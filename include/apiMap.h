@@ -23,8 +23,8 @@ char* fapiGetMapSong(apiMapModel* api);
 char* fapiGetMapBGFile(apiMapModel* api);
 char* fapiGetMapText(apiMapModel* api, const char* key);
 
-unsigned int* fapiGetMapTimingData(apiMapModel* api);
-unsigned int* fapiConvertTimingData(unsigned int* data, size_t data_sizeof, size_t array_type_sizeof);
+unsigned char* fapiGetMapTimingData(apiMapModel* api, int* array_elements);
+unsigned int* fapiConvertTimingData(unsigned char* data, int array_elements);
 
 void fapiResetCursor(apiMapModel* api);
 

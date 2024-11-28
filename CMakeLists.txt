@@ -21,6 +21,9 @@ add_executable(main ${exe_s})
 add_executable(map_editor src/map_editor/main.c src/apis/apiMap.c)
 target_link_libraries(main glew32s SDL2 opengl32 SDL2_ttf discord-rpc)
 
+add_executable(mapdata_read test/mapdata.c src/apis/apiMap.c)
+add_executable(mapdata_create test/mapdatacreate.c src/apis/apiMap.c)
+
 add_custom_command(
     TARGET main POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory

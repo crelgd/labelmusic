@@ -22,11 +22,33 @@ int main(int argc, char* argv[]) {
     char* txt = fapiGetMapText(file, "NULL");
     fapiFree(txt);
 
-    unsigned int* timedata = fapiGetMapTimingData(file);
-    unsigned int* converted_timedata = fapiConvertTimingData(timedata, sizeof(timedata), sizeof(timedata[0]));
+    int arraY_element;
 
-    for (int i = 0; i < sizeof(converted_timedata)/sizeof(converted_timedata[0]); i++) {
-        printf("%c", converted_timedata[i]);
+    unsigned char* timedata = fapiGetMapTimingData(file, &arraY_element);
+    if (!timedata) {
+        printf("get data error!\n");
+        return 1;
+    }
+
+    int c = 0;
+    for (int i = 0; i < arraY_element; i++) {
+        if (c >= 4) {
+            printf("\n");
+            c = 0;
+        }
+        printf("%2X ", timedata[i]);
+        c++;
+    }
+    printf("\n");
+
+    unsigned int* converted_timedata = fapiConvertTimingData(timedata, arraY_element);
+    if (!converted_timedata) {
+        printf("data convert error\n");
+        return 1;
+    }
+
+    for (int i = 0; i < arraY_element/4; i++) {
+        printf("%d\n", converted_timedata[i]);
     }
     printf("\n");
 
