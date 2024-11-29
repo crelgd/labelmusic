@@ -160,9 +160,13 @@ void game_game_text_marker(char** word_array, int pos) {
 }
 
 int game_game_cliked(char current_symbol, char** word_array) {
-    int status = GAME_L;
-    if (current_symbol == tolower(word_array[text_counter][tpos])) {
-        status = GAME_R;
+    int status = 0xff;
+
+    if (current_symbol != 0x00) {
+        status = GAME_L;
+        if (current_symbol == word_array[text_counter][tpos]) {
+            status = GAME_R;
+        }
     }
     int text_size = strlen(word_array[text_counter]);
 
