@@ -167,8 +167,33 @@ int main(int argc, char* argv[]) {
                 run = 0;
             }
             if (e.type == SDL_KEYDOWN) {
-                //printf("clicked!\n");
-                char current_char = e.key.keysym.sym;
+                SDL_Keymod mod = SDL_GetModState();  // Получаем состояние модификаторов
+                SDL_Keycode key = e.key.keysym.sym;
+
+                char current_char = 0x00;
+
+                if (mod & SDLK_LSHIFT) {
+                    // Если Shift зажат
+                    if (key >= SDLK_a && key <= SDLK_z) {
+                        current_char=(char)toupper(key);
+                    } else if (key == SDLK_1) {
+                        current_char = '!';
+                    } else if (key == SDLK_2) {
+                        current_char = '@';
+                    } else if (key == SDLK_3) {
+                        current_char = '#';
+                    } else if (key == SDLK_SLASH) {
+                        current_char = '?';
+                    }
+                } else {
+                    // Если Shift не зажат
+                    if (key >= SDLK_a && key <= SDLK_z) {
+                        current_char = (char)key;
+                    } 
+                    else if (key == SDLK_COMMA) current_char = ',';
+                }
+
+                if (key == SDLK_SPACE)current_char = ' ';
 
                 int game = game_game_cliked(current_char, map_split_data);
 

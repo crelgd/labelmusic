@@ -65,7 +65,8 @@ int main(int argc, char* argv[]) {
             return;
         }
 
-        int status = fapiCreateFile(argv[3], argv[5], argv[6],file_in,argv[4]);
+        unsigned int idk[3] = {0, 0, 0};
+        int status = fapiCreateFile(argv[3], argv[5], argv[6],file_in,argv[4], idk, 3);
         if (status == 1) {
             printf("error\n");
             return;

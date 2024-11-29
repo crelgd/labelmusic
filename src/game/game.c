@@ -165,13 +165,16 @@ int game_game_cliked(char current_symbol, char** word_array) {
         status = GAME_R;
     }
     int text_size = strlen(word_array[text_counter]);
-    tpos++;
+
+    if (current_symbol != 0x00) {
+        tpos++;
+        new_text = 1;
+    }
     if (tpos >= text_size) {
         tpos = 0;
         text_counter++;
         status = GAME_NEWTEXT;
     }
-    new_text = 1;
     return status;
 }
 
