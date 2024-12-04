@@ -182,7 +182,27 @@ int game_game_cliked(char current_symbol, char** word_array) {
     return status;
 }
 
-int game_game_draw_text(char** word_array, int word_array_count, char* combo, int combo_status) {
+int change_time_data = 1;
+int rval1, rval2 = 0;
+
+int game_game_draw_text(char** word_array, int word_array_count, char* combo, int combo_status, int current_time, unsigned int* time_data, int time_data_size, int* time_bfr) {
+    if (change_time_data) {
+        if (*time_bfr >= time_data_size) {
+            return GAME_END;
+        } else {
+            rval1 = time_data[*time_bfr++];
+            rval2 = time_data[*time_bfr++];
+        }
+
+        change_time_data = 0; // крч если че пофиксить изменение текста в промежутке
+    }
+
+    if (current_time > rval2) {
+        new_text = 1;
+        tpos = 0;
+        text_counter++;
+    }
+
     if (new_text) {
         if (game_text) {
             uapiDeleteText(game_text);
@@ -199,10 +219,10 @@ int game_game_draw_text(char** word_array, int word_array_count, char* combo, in
             text_x = (gww/2) - (game_text->w/2);
             text_y = (gwh/2) - (game_text->h/2);
 
-            game_game_text_marker(word_array, tpos); // крч дальше добавить музыку,         1
-        } else {                                     // а потом добавить клики под музыку   2
-            printf("END!");                          // (изменение формата карты)
-            return GAME_END;                         // * я подготовил библиоотеку OpenAL и dr_mp3
+            game_game_text_marker(word_array, tpos);
+        } else {
+            printf("END!");
+            return GAME_END;
         }
 
         new_text = 0;

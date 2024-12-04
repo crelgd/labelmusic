@@ -150,6 +150,13 @@ int main(int argc, char* argv[]) {
     fapiFree(map_song);
 
     fapiFree(map_bg);
+
+    int timing_data_size;
+    unsigned char* timing_data_bin = fapiGetMapTimingData(api, &timing_data_size);
+    fapiFree(timing_data_bin);
+
+    unsigned int* timing_data = fapiConvertTimingData(timing_data_bin, timing_data_size);
+
     fapiClose(api);
 
     int run = 1;
@@ -161,13 +168,16 @@ int main(int argc, char* argv[]) {
 
     char buffer[100000];
 
+    int current_time = 0;
+    int time_bfr = 0;
+
     while (run) {
         if (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) {
                 run = 0;
             }
             if (e.type == SDL_KEYDOWN) {
-                SDL_Keymod mod = SDL_GetModState();  // Получаем состояние модификаторов
+                SDL_Keymod mod = SDL_GetModState();
                 SDL_Keycode key = e.key.keysym.sym;
 
                 char current_char = 0x00;
@@ -212,7 +222,7 @@ int main(int argc, char* argv[]) {
         game_game_draw_other();
 
         glEnable2D();
-        int res = game_game_draw_text(map_split_data, map_word_count, SDL_itoa(combo, buffer, 10), change_combo);
+        int res = game_game_draw_text(map_split_data, map_word_count, SDL_itoa(combo, buffer, 10), change_combo, current_time, timing_data, timing_data_size, &time_bfr);
         if (res == GAME_END) {
             run = 0;
         }
@@ -224,6 +234,7 @@ int main(int argc, char* argv[]) {
         SDL_Delay(16);
     }
 
+    fapiFree(timing_data);
     game_game_close();
 
     free_split(map_split_data, map_word_count);
