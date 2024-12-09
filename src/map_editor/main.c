@@ -2,12 +2,67 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 void help() {
     printf("\
-    /w <filename_in> <filename_out> <key> <audioname> <bgname>\n\
+    /w <filename_in> <filename_out> <key> <audioname> <bgname> <filename_in_timedata>\n\
     /r <filename> <key>\n");
 }
+
+char** split(char* text, int* element_count) {
+    int text_size = strlen(text);
+    int space_count = 0;
+
+    //if (text[0] == ' ') text[0] = 0x00;
+    for (int i = 0; i < text_size; i++)
+        if (text[i] == ' ') space_count++;
+
+    *element_count = space_count;
+
+    int read_data = 0;
+    int word_size = 0;
+
+    int start_pos = 0;
+    int start_counter = 0;
+
+    char** output = (char**)malloc(space_count * sizeof(char*));
+    if (!output) return NULL;
+
+    for (int i = 0; i < text_size; i++) {
+        if (text[i] == ' ' || text[i] == '\n') {
+            char* arr = (char*)malloc((word_size+1) * sizeof(char));
+            if (!arr) return NULL;
+
+            for (int to_arr = 0; to_arr < word_size; to_arr++) {
+                arr[to_arr] = text[start_pos+start_counter];
+                start_counter++;
+            }
+            start_counter = 0;
+
+            arr[word_size] = '\0';
+
+            output[read_data] = arr;
+
+            start_pos = i + 1;   
+            word_size = 0;
+            read_data++;
+            if (read_data >= space_count) 
+                break;
+        }
+        word_size++;
+    }
+
+    return output;
+}
+
+void free_split(char** array, int element_count) {
+    for (int i = 0; i < element_count; i++) {
+        free(array[i]);
+    }
+    free(array);
+}
+
 
 char* uapiLoadFile(const char* path) {
     FILE* file = fopen(path, "rb");
@@ -35,6 +90,15 @@ char* uapiLoadFile(const char* path) {
     //printf("%s\n", content);
 
     return content;
+}
+
+char* readTimeFile(const char* filename) {
+    char* timedata = uapiLoadFile(filename);
+    int ec;
+    unsigned char** split_timedata = split(timedata, &ec);
+    free(timedata);
+
+    return split_timedata;
 }
 
 int main(int argc, char* argv[]) {
@@ -65,12 +129,26 @@ int main(int argc, char* argv[]) {
             return;
         }
 
-        unsigned int idk[3] = {0, 0, 0};
-        int status = fapiCreateFile(argv[3], argv[5], argv[6],file_in,argv[4], idk, 3);
+        char* timedata = uapiLoadFile(argv[7]);
+        int ec;
+        unsigned char** split_timedata = split(timedata, &ec);
+        free(timedata);
+
+        unsigned int* data = (unsigned int*)malloc(ec * sizeof(unsigned int));
+
+        for (int i = 0; i < ec; i++) {
+            data[i] = (unsigned int)atoi(split_timedata[i]);
+            free(split_timedata[i]);
+        }
+        free(split_timedata);
+        
+        int status = fapiCreateFile(argv[3], argv[5], argv[6],file_in,argv[4], data, ec);
         if (status == 1) {
             printf("error\n");
             return;
         }
+
+        free(data);
 
         fapiFree(file_in);
     } else {

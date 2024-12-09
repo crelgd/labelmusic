@@ -2,6 +2,7 @@
 #define LABELMUSIC_GAME_H
 
 #include "apiGraphic.h"
+#include <windows.h>
 
 typedef unsigned char* byte_api;
 
@@ -14,7 +15,7 @@ void game_game_draw_other();
 
 #define GAME_END 5
 
-int game_game_draw_text(char** word_array, int word_array_count, char* combo, int combo_status, int current_time, unsigned int* time_data, int time_data_size, int* time_bfr);
+int game_game_draw_text(char** word_array, int word_array_count, char* combo, int combo_status, DWORD current_time, unsigned int* time_data, int time_data_size, int* time_bfr);
 
 void game_game_close();
 

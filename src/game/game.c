@@ -185,7 +185,7 @@ int game_game_cliked(char current_symbol, char** word_array) {
 int change_time_data = 1;
 int rval1, rval2 = 0;
 
-int game_game_draw_text(char** word_array, int word_array_count, char* combo, int combo_status, int current_time, unsigned int* time_data, int time_data_size, int* time_bfr) {
+int game_game_draw_text(char** word_array, int word_array_count, char* combo, int combo_status, DWORD current_time, unsigned int* time_data, int time_data_size, int* time_bfr) {
     if (change_time_data) {
         if (*time_bfr >= time_data_size) {
             return GAME_END;

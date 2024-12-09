@@ -20,6 +20,9 @@ void glDisable2D();
 char** split(char* text, int* element_count);
 void free_split(char** array, int element_count);
 
+DWORD startTimer();
+DWORD timerProccess(int startedData);
+
 int main(int argc, char* argv[]) {
     if (argc < 2) return 0;
 
@@ -85,7 +88,11 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    if (fapiCheckMapSign(api) != 0) {
+    int status = fapiCheckMapSign(api);
+
+    printf("status: %d\n", status);
+
+    if (status != 0) {
         printf("map sing\n");
         fapiClose(api);
         SDL_GL_DeleteContext(glcontext);
@@ -168,7 +175,9 @@ int main(int argc, char* argv[]) {
 
     char buffer[100000];
 
-    int current_time = 0;
+    DWORD startTimer_data = startTimer();
+
+    DWORD current_time = timerProccess(startTimer_data);
     int time_bfr = 0;
 
     while (run) {
@@ -215,6 +224,8 @@ int main(int argc, char* argv[]) {
                 change_combo = 1;
             }
         }
+
+        current_time = timerProccess(startTimer_data);
 
         glClearColor(1, 1, 1, 1);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -323,4 +334,14 @@ void free_split(char** array, int element_count) {
         free(array[i]);
     }
     free(array);
+}
+
+DWORD startTimer() {
+    DWORD timestart = GetCurrentTime();
+    return timestart;
+}
+
+DWORD timerProccess(int startedData) {
+    DWORD curTime = GetCurrentTime();
+    return curTime - startedData;
 }
