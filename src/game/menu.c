@@ -1,6 +1,7 @@
-#include "menu.h"
 #include <stdlib.h>
 #include <Windows.h>
+
+#include "menu.h"
 
 char** game_menu_get_dir_list(const char* dir, int* dir_count) {
     WIN32_FIND_DATAA win_data;
@@ -11,7 +12,10 @@ char** game_menu_get_dir_list(const char* dir, int* dir_count) {
     int directory_count = 0;
 
     do {
-        if (win_data.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY) {
+        if (win_data.cFileName[0] == '.') {
+            continue;
+        }
+        else if (win_data.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY) {
             directory_count++;
         }
     } while (FindNextFileA(file, &win_data) != 0);
@@ -29,8 +33,11 @@ char** game_menu_get_dir_list(const char* dir, int* dir_count) {
 
     // read to global array
     do {
-        if (win_data.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY) {
-            int filename_size = strlen(win_data.cFileName);
+        if (win_data.cFileName[0] == '.') {
+            continue;
+        }
+        else if (win_data.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY) {
+            int filename_size = strlen(win_data.cFileName)+1;
             char* filename = (char*)malloc(filename_size * sizeof(char));
             if (!filename) {
                 for (int i = 0; i < glob_array_pos; i++) {
@@ -57,4 +64,8 @@ void game_menu_delete_dir_list(char** array, int dirs_count) {
         free(array[i]);
     }
     free(array);
+}
+
+void game_menu_init(const char* map_dir) {
+    
 }
