@@ -12,6 +12,7 @@ set(exe_s
     src/apis/apiGraphic.c
 
     src/game/game.c
+    src/game/menu.c
     src/stb.c
 )
 

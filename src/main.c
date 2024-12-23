@@ -5,6 +5,7 @@
 #include "SDL/SDL_ttf.h"
 #include "discord/discord_rpc.h"
 #include "game.h"
+#include "menu.h"
 #include "apiMap.h"
 #include "data.h"
 
@@ -21,8 +22,6 @@ char** split(char* text, int* element_count);
 void free_split(char** array, int element_count);
 
 int main(int argc, char* argv[]) {
-    if (argc < 2) return 0;
-
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         printf("SDL INIT\n");
         return 1;
@@ -74,6 +73,8 @@ int main(int argc, char* argv[]) {
 
     char buffer[100000];
 
+    game_menu_init("map/*");
+
     while (run) {
         if (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) {
@@ -84,7 +85,7 @@ int main(int argc, char* argv[]) {
         glClearColor(1, 1, 1, 1);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        
+        game_menu_draw_other();
 
         glEnable2D();
         
@@ -96,7 +97,7 @@ int main(int argc, char* argv[]) {
         SDL_Delay(16);
     }
 
-    
+    game_menu_close();
 
     Discord_ClearPresence();
     Discord_Shutdown();
