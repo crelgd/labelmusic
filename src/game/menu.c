@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <Windows.h>
+#include "GL/glew.h"
 
 #include "menu.h"
 
@@ -77,6 +78,13 @@ char** game_dir = NULL;
 int game_dir_count;
 
 uapiImage* menu_bg = NULL;
+uapiObject menu_bg_op = NULL;
+
+uapiShader color_shader = NULL;
+uapiProgram color_program = NULL;
+GLint color = NULL;
+
+uapiObject play_button = NULL;
 
 void game_menu_init(const char* map_dir) {
     game_dir = game_menu_get_dir_list(map_dir, &game_dir_count);
@@ -143,13 +151,54 @@ void game_menu_init(const char* map_dir) {
     if (!menu_bg) return;
     fapiFree(bg);
     fapiClose(fmap);
+
+    char* color_shader_code = uapiLoadFile("shaders/default_color_shader.fsh");
+
+    color_shader = uapiCreateShader(API_FRAGMENT_SHADER, color_shader_code);
+    color_program = uapiCreateProgram(NULL, color_shader);
+    uapiDeleteShader(color_shader);
+
+    uapiFreeElement(color_shader_code);
+
+    color = glGetUniformLocation(color_program, "color");
+    if (!color) return;
+
+    menu_bg_op = uapiCreateObject(game_bg_data, sizeof(game_bg_data));
+
+    float button_start_pos[] = {
+        -1, -0.1, 0,
+        1, -0.1, 0,
+        1, 0.1, 0,
+        -1, 0.1, 0
+    };
+    play_button = uapiCreateObject(button_start_pos, sizeof(button_start_pos));
 }
 
 void game_menu_draw_other() {
     uapiDrawImage(menu_bg, 4);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    uapiUseShader(color_program);
+    float bg_op_color[4] = {0, 0, 0, 0.2};
+    glUniform4fv(color, 1, bg_op_color);
+    uapiDrawObject(menu_bg_op, 4);
+    uapiStopUseShader();
+
+    uapiUseShader(color_program);
+    float play_color[4] = {1, 0, 0, 0.6};
+    glUniform4fv(color, 1, play_color);
+    uapiDrawObject(play_button, 4);
+    uapiStopUseShader();
+
+    glDisable(GL_BLEND);
 }
 
 void game_menu_close() {
     game_menu_delete_dir_list(game_dir, game_dir_count);
+    uapiDeleteObject(&menu_bg_op);
+    uapiDeleteObject(&play_button);
+    uapiDeleteProgram(color_program);
     uapiDeleteImage(menu_bg);
 }
