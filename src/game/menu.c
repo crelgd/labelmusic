@@ -77,14 +77,14 @@ int randomNumber(int max_value) {
 char** game_dir = NULL;
 int game_dir_count;
 
-uapiImage* menu_bg = NULL;
-uapiObject menu_bg_op = NULL;
+uapiImage* menu_bg;
+uapiObject menu_bg_op;
 
-uapiShader color_shader = NULL;
-uapiProgram color_program = NULL;
-GLint color = NULL;
+uapiObject play_button;
 
-uapiObject play_button = NULL;
+uapiShader color_shader;
+uapiProgram color_program;
+GLint color;
 
 void game_menu_init(const char* map_dir) {
     game_dir = game_menu_get_dir_list(map_dir, &game_dir_count);
@@ -160,18 +160,18 @@ void game_menu_init(const char* map_dir) {
 
     uapiFreeElement(color_shader_code);
 
-    color = glGetUniformLocation(color_program, "color");
-    if (!color) return;
-
-    menu_bg_op = uapiCreateObject(game_bg_data, sizeof(game_bg_data));
-
     float button_start_pos[] = {
         -1, -0.1, 0,
-        1, -0.1, 0,
-        1, 0.1, 0,
+        -0.4, -0.1, 0,
+        -0.4, 0.1, 0,
         -1, 0.1, 0
     };
     play_button = uapiCreateObject(button_start_pos, sizeof(button_start_pos));
+
+    menu_bg_op = uapiCreateObject(game_bg_data, sizeof(game_bg_data));
+
+    color = glGetUniformLocation(color_program, "color");
+    if (!color) return;
 }
 
 void game_menu_draw_other() {
@@ -187,7 +187,7 @@ void game_menu_draw_other() {
     uapiStopUseShader();
 
     uapiUseShader(color_program);
-    float play_color[4] = {1, 0, 0, 0.6};
+    float play_color[4] = {1, 1, 1, 0.6};
     glUniform4fv(color, 1, play_color);
     uapiDrawObject(play_button, 4);
     uapiStopUseShader();
